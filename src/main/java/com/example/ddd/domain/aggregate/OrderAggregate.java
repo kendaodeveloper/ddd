@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class OrderAggregate extends AggregateRoot {
   private Order order;
@@ -14,11 +13,9 @@ public class OrderAggregate extends AggregateRoot {
   private Address address;
   private List<CustomOrderItem> items;
 
-  public OrderAggregate(Order order, List<OrderItem> orderItems, List<Product> products, Customer customer, Address address) {
+  public OrderAggregate(Order order, List<CustomOrderItem> items, Customer customer, Address address) {
     this.order = order;
-    this.items = orderItems.stream().map(x -> new CustomOrderItem(
-        x, products.stream().filter(y -> y.getId().equals(x.getProductId())).findFirst().orElse(null)
-    )).collect(Collectors.toList());
+    this.items = items;
     this.customer = customer;
     this.address = address;
   }
@@ -58,7 +55,7 @@ public class OrderAggregate extends AggregateRoot {
 
   // other classes
 
-  private static class CustomOrderItem {
+  public static class CustomOrderItem {
     private Long orderId;
     private Product product;
     private Integer quantity;

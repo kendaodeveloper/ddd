@@ -2,6 +2,7 @@ package com.example.ddd.service;
 
 import com.example.ddd.domain.aggregate.OrderAggregate;
 import com.example.ddd.exception.NotFoundException;
+import com.example.ddd.factory.OrderFactory;
 import com.example.ddd.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,6 @@ public class OrderService {
     final var customer = this.customerRepository.getOneById(order.getCustomerId()).orElseThrow(() -> new NotFoundException("Customer Not Found by id"));
     final var address = this.addressRepository.getOneById(order.getAddressId()).orElseThrow(() -> new NotFoundException("Address Not Found by id"));
 
-    return new OrderAggregate(order, orderItems, products, customer, address);
+    return OrderFactory.createNewOrder(order, orderItems, products, customer, address);
   }
 }
