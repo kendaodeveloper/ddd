@@ -48,7 +48,7 @@ public class CustomerService {
   }
 
   public CustomerAggregate updateById(UUID id, Customer newCustomer) {
-    final var existingCustomer = this.customerRepository.getOneById(id).orElseThrow(() -> new NotFoundException("Customer Not Found by id"));
+    this.customerRepository.getOneById(id).orElseThrow(() -> new NotFoundException("Customer Not Found by id"));
 
     this.customerRepository.getOneByCpf(newCustomer.getCpf())
         .filter(x -> !x.getId().equals(id))
@@ -56,10 +56,9 @@ public class CustomerService {
           throw new ConflictException("A Customer Already Exists by CPF");
         });
 
-    existingCustomer.setCpf(newCustomer.getCpf());
-    existingCustomer.setName(newCustomer.getName());
-
-    final var aggregate = this.getAggregate(existingCustomer);
+    final var aggregate = this.getAggregate(
+        new Customer(id, newCustomer.getCpf(), newCustomer.getName())
+    );
 
     aggregate.validate();
 
