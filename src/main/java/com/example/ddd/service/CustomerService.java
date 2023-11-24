@@ -31,12 +31,14 @@ public class CustomerService {
   }
 
   public CustomerAggregate create(Customer newCustomer) {
-    this.customerRepository.getOneById(newCustomer.getId())
+    this.customerRepository.getOneByCpf(newCustomer.getCpf())
         .ifPresent((x) -> {
-          throw new ConflictException("Customer Already Exists");
+          throw new ConflictException("Customer Already Exists by CPF");
         });
 
-    final var aggregate = this.getAggregate(newCustomer);
+    final var aggregate = this.getAggregate(
+        new Customer(UUID.randomUUID(), newCustomer.getCpf(), newCustomer.getName())
+    );
 
     aggregate.validate();
 
@@ -47,6 +49,12 @@ public class CustomerService {
 
   public CustomerAggregate updateById(UUID id, Customer newCustomer) {
     final var existingCustomer = this.customerRepository.getOneById(id).orElseThrow(() -> new NotFoundException("Customer Not Found by id"));
+
+    this.customerRepository.getOneByCpf(newCustomer.getCpf())
+        .filter(x -> !x.getId().equals(id))
+        .ifPresent((x) -> {
+          throw new ConflictException("A Customer Already Exists by CPF");
+        });
 
     existingCustomer.setCpf(newCustomer.getCpf());
     existingCustomer.setName(newCustomer.getName());
